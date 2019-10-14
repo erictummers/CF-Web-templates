@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EF_codefirst_migration.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.MySqlClient;
+using Steeltoe.CloudFoundry.Connector.MySql;
 
 namespace EF_codefirst_migration
 {
@@ -33,6 +37,13 @@ namespace EF_codefirst_migration
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            // get the connection to the mysql service
+            services.AddMySqlConnection(Configuration);
+            // DbContext from mysql connection
+            var serviceProvider = services.BuildServiceProvider();
+            services.AddDbContext<SchoolContext>(options => 
+                options.UseMySql(connection: serviceProvider.GetService<MySqlConnection>()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
